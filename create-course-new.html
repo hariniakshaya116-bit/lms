@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Course</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+
+    /* Back button - same style as dashboards */
+    .back-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.85);
+      color: #333;
+      padding: 10px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .back-button:hover {
+      background: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 12px rgba(255, 255, 255, 0.3);
+    }
+
+    /* Main container */
+    .container {
+      max-width: 600px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 35px 25px;
+      border-radius: 15px;
+      margin: 100px auto 50px auto;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      animation: fadeIn 0.6s ease;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 25px;
+      font-size: 28px;
+      letter-spacing: 0.5px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 6px;
+      color: #2c3e50;
+      font-size: 15px;
+    }
+
+    input,
+    textarea,
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 8px rgba(102, 126, 234, 0.4);
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    button {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-top: 25px;
+      transition: all 0.3s ease;
+      font-weight: bold;
+      letter-spacing: 0.3px;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+    }
+
+    #status {
+      margin-top: 25px;
+      font-weight: bold;
+      text-align: center;
+      font-size: 15px;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="courses.html" class="back-button">← Back</a>
+
+  <div class="container">
+    <h1>Create New Course</h1>
+
+    <label for="course-title">Course Title</label>
+    <input type="text" id="course-title" placeholder="Enter course title" required />
+
+    <label for="course-description">Description</label>
+    <textarea id="course-description" rows="4" placeholder="Enter description"></textarea>
+
+    <label for="educator-name">Educator Name</label>
+    <input type="text" id="educator-name" placeholder="Enter your name" required />
+
+    <label for="video-file">Course Video (MP4)</label>
+    <input type="file" id="video-file" accept="video/mp4" required />
+
+    <label for="material-file">Course Material (PDF)</label>
+    <input type="file" id="material-file" accept="application/pdf" required />
+
+    <button id="create-course-btn">Create Course</button>
+
+    <div id="status"></div>
+  </div>
+
+  <script>
+    const API_BASE = "https://vc3atpev41.execute-api.us-east-1.amazonaws.com/prod";
+
+    document.getElementById("create-course-btn").addEventListener("click", async () => {
+      const title = document.getElementById("course-title").value.trim();
+      const description = document.getElementById("course-description").value.trim();
+      const educator = document.getElementById("educator-name").value.trim();
+      const videoFile = document.getElementById("video-file").files[0];
+      const materialFile = document.getElementById("material-file").files[0];
+      const status = document.getElementById("status");
+
+      if (!title || !description || !educator || !videoFile || !materialFile) {
+        status.textContent = "⚠️ Please fill in all fields and select both files.";
+        status.style.color = "red";
+        return;
+      }
+
+      status.textContent = "⏳ Generating upload URLs...";
+      status.style.color = "#333";
+
+      try {
+        const presignedRes = await fetch(`${API_BASE}/generate-presigned-url`, { method: "POST" });
+        if (!presignedRes.ok) throw new Error("Failed to generate presigned URLs");
+
+        const presignedData = await presignedRes.json();
+        const { course_id, urls } = presignedData;
+
+        status.textContent = "⏫ Uploading video...";
+        await fetch(urls.video.url, { method: "PUT", headers: { "Content-Type": "video/mp4" }, body: videoFile });
+
+        status.textContent = "⏫ Uploading material...";
+        await fetch(urls.material.url, { method: "PUT", headers: { "Content-Type": "application/pdf" }, body: materialFile });
+
+        const metadata = {
+          course_id: course_id,
+          title: title,
+          description: description,
+          educator: educator,
+          video_key: urls.video.key,
+          material_key: urls.material.key
+        };
+
+        status.textContent = "💾 Saving course metadata...";
+        const saveRes = await fetch(`${API_BASE}/upload-course`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(metadata)
+        });
+
+        const saveData = await saveRes.json();
+        if (!saveRes.ok) throw new Error(saveData.error || "Error saving course");
+
+        status.textContent = `✅ Course created successfully! (ID: ${course_id})`;
+        status.style.color = "green";
+
+      } catch (err) {
+        console.error("Error creating course:", err);
+        status.textContent = `❌ ${err.message}`;
+        status.style.color = "red";
+      }
+    });
+  </script>
+</body>
+</html>

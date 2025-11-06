@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Student List</title>
+<style>
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    margin: 0;
+    color: #333;
+  }
+
+  /* Header Bar */
+  header {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 28px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  }
+
+  .back-btn {
+    background: #00c27b;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(0,194,123,0.3);
+    transition: all 0.3s ease;
+  }
+  .back-btn:hover {
+    background-color: #00a86b;
+    transform: translateY(-2px);
+  }
+
+  .header-title {
+    font-size: 22px;
+    font-weight: bold;
+    text-align: center;
+    flex-grow: 1;
+  }
+
+  .header-title span {
+    vertical-align: middle;
+  }
+
+  .search-container {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 6px 10px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  }
+
+  .search-container input {
+    border: none;
+    outline: none;
+    font-size: 15px;
+    padding: 6px;
+    width: 200px;
+    background: transparent;
+  }
+
+  table {
+    width: 90%;
+    margin: 40px auto;
+    border-collapse: collapse;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    border-radius: 12px;
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+  }
+
+  th, td {
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    font-size: 15px;
+  }
+
+  th {
+    background-color: #4b49e8;
+    color: white;
+    cursor: pointer;
+    user-select: none;
+    font-weight: 600;
+  }
+
+  tr:hover {
+    background-color: rgba(103, 98, 240, 0.08);
+  }
+
+  @media (max-width: 768px) {
+    header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .header-title {
+      text-align: left;
+    }
+    .search-container input {
+      width: 150px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index-2.html" class="back-btn">← Back</a>
+  <div class="header-title">
+    📚 <span>Student List</span>
+  </div>
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search by name...">
+  </div>
+</header>
+
+<table id="studentTable">
+  <thead>
+    <tr>
+      <th onclick="sortTable(0)">Name</th>
+      <th onclick="sortTable(1)">Email</th>
+      <th onclick="sortTable(2)">User ID</th>
+      <th onclick="sortTable(3)">Created At</th>
+      <th onclick="sortTable(4)">Role</th>
+      <th onclick="sortTable(5)">Status</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<script>
+const apiUrl = 'https://3qfr9chuv8.execute-api.us-east-1.amazonaws.com/prod/students';
+
+fetch(apiUrl)
+  .then(res => res.json())
+  .then(data => {
+    const tbody = document.querySelector('#studentTable tbody');
+    tbody.innerHTML = '';
+
+    data.forEach(s => {
+      const createdAt = s.created_at ? new Date(s.created_at).toLocaleString() : '-';
+      const row = `
+        <tr>
+          <td>${s.name || '-'}</td>
+          <td>${s.email || '-'}</td>
+          <td>${s.user_id || '-'}</td>
+          <td>${createdAt}</td>
+          <td>${s.role || '-'}</td>
+          <td>${s.status || '-'}</td>
+        </tr>`;
+      tbody.innerHTML += row;
+    });
+
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('keyup', function() {
+      const filter = this.value.toLowerCase();
+      const rows = tbody.getElementsByTagName('tr');
+      for (let i = 0; i < rows.length; i++) {
+        const nameCell = rows[i].getElementsByTagName('td')[0];
+        if (nameCell) {
+          const name = nameCell.textContent || nameCell.innerText;
+          rows[i].style.display = name.toLowerCase().includes(filter) ? '' : 'none';
+        }
+      }
+    });
+  })
+  .catch(err => console.error('Error fetching students:', err));
+
+function sortTable(n) {
+  const table = document.getElementById("studentTable");
+  let switching = true, dir = "asc", switchcount = 0;
+  while (switching) {
+    switching = false;
+    const rows = table.rows;
+    for (let i = 1; i < rows.length - 1; i++) {
+      let shouldSwitch = false;
+      const x = rows[i].getElementsByTagName("TD")[n];
+      const y = rows[i + 1].getElementsByTagName("TD")[n];
+      if (dir === "asc" && x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+        shouldSwitch = true; break;
+      } else if (dir === "desc" && x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+        shouldSwitch = true; break;
+      }
+    }
+    if (shouldSwitch) {
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+      switchcount++;
+    } else if (switchcount === 0 && dir === "asc") {
+      dir = "desc";
+      switching = true;
+    }
+  }
+}
+</script>
+
+</body>
+</html>

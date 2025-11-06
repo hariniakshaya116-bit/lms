@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Course Content</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+    }
+
+    header {
+        background-color: #3498db;
+        color: #fff;
+        text-align: center;
+        padding: 1em;
+    }
+
+    main {
+        padding: 20px;
+    }
+
+    section {
+        margin-bottom: 20px;
+    }
+
+    .container {
+        width: 80%;
+        margin: 0 auto;
+    }
+
+    .card {
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+    }
+
+    .button {
+        display: inline-block;
+        padding: 10px 20px;
+        font-size: 16px;
+        text-align: center;
+        text-decoration: none;
+        background-color: #3498db;
+        color: #fff;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .kalyan{
+      padding: 30px;
+    }
+
+        .logout-button:hover {
+            background-color: #eee; /* Change background color on hover if desired */
+        }
+</style>
+</head>
+<body>
+  <header>
+    <h1>HTML</h1>
+  </header>
+  
+  <main>
+    <section class="course-videos">
+      <h2>Video:</h2>
+      <video controls>
+        <source src="https://d1tzzg8sgcoyvd.cloudfront.net" type="video/mp4">
+      </video>
+    </section>
+    
+    <section class="course-materials">
+      <h2>Course Materials:</h2>
+      <!-- List of Materials -->
+      <ul>
+        <div class="kalyan">
+          <embed src="https://lmsmultimedialearningcontent.s3.amazonaws.com/html.pdf#toolbar=0" type="application/pdf" width="70%" height="600px" />
+        </div>
+        <!-- More Materials -->
+      </ul>
+    </section>
+    <h2>Skill Test:</h2>
+    <p>If you have completed the course and check how much you have learnt from the course please click the below start test button.</p>
+    <a href="quizzes.html" class="button">Start test</a>
+    <h2>Conclusion:</h2>
+    <p>Once you have completed the vedio lectures, matrials and writing the skill test can please go back to the courses page and 
+      click on the profile button at the top right of the page. Thank you for taking the course.
+    </p>
+  </main>
+  
+
+</body>
+</html>

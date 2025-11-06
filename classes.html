@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Educator Classes</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      margin: 0;
+      color: #333;
+    }
+
+    /* Header */
+    header {
+      position: relative;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: white;
+      padding: 18px;
+      text-align: center;
+      font-size: 1.6em;
+      font-weight: bold;
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .top-left-btn {
+      position: absolute;
+      top: 50%;
+      left: 20px;
+      transform: translateY(-50%);
+      background: #00c27b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 15px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0, 194, 123, 0.3);
+    }
+
+    .top-left-btn:hover {
+      background: #00a86b;
+      transform: translateY(-2px);
+    }
+
+    table {
+      width: 92%;
+      margin: 40px auto;
+      border-collapse: collapse;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 4px 25px rgba(0, 0, 0, 0.15);
+      border-radius: 12px;
+      overflow: hidden;
+      backdrop-filter: blur(8px);
+      font-size: 15px;
+    }
+
+    th, td {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      padding: 14px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #4b49e8;
+      color: white;
+      font-weight: 600;
+      cursor: default;
+    }
+
+    tr:nth-child(even) {
+      background-color: rgba(255, 255, 255, 0.7);
+    }
+
+    tr:hover {
+      background-color: rgba(102, 126, 234, 0.1);
+    }
+
+    button, a.btn {
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      text-decoration: none;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 0 3px 10px rgba(0, 123, 255, 0.3);
+    }
+
+    button:hover, a.btn:hover {
+      background: #0056b3;
+      transform: translateY(-2px);
+    }
+
+    .btn-att {
+      background: #28a745;
+      box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3);
+    }
+
+    .btn-att:hover {
+      background: #218838;
+      transform: translateY(-2px);
+    }
+
+    #loading {
+      text-align: center;
+      margin-top: 60px;
+      font-size: 18px;
+      color: #fff;
+      font-weight: 500;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    @media (max-width: 768px) {
+      table {
+        width: 100%;
+        font-size: 14px;
+      }
+      header {
+        font-size: 1.3em;
+      }
+      .top-left-btn {
+        padding: 6px 12px;
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    📚 Classes List
+    <a href="index-2.html" class="top-left-btn">← Back</a>
+  </header>
+
+  <div id="loading">Loading your classes...</div>
+
+  <table id="classTable" style="display:none;">
+    <thead>
+      <tr>
+        <th>Class Name</th>
+        <th>Schedule Time</th>
+        <th>Attendance</th>
+        <th>Join Link</th>
+        <th>Start Link</th>
+        <th>Created At</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+
+  <script>
+    const API_GET_CLASSES = "https://3qfr9chuv8.execute-api.us-east-1.amazonaws.com/prod/get-classes";
+    const API_GET_ATT = "https://3qfr9chuv8.execute-api.us-east-1.amazonaws.com/prod/get-attendance";
+
+    async function fetchClasses() {
+      const table = document.getElementById("classTable");
+      const body = document.getElementById("tableBody");
+      const loading = document.getElementById("loading");
+
+      try {
+        const res = await fetch(API_GET_CLASSES);
+        const data = await res.json();
+
+        loading.style.display = "none";
+        if (!data.length) {
+          loading.textContent = "No classes found.";
+          return;
+        }
+
+        table.style.display = "table";
+        body.innerHTML = "";
+
+        for (const item of data) {
+          const classId = item.classId || item.meetingId || item.id || "Unknown";
+
+          // Fetch attendance count dynamically
+          let attendanceCount = 0;
+          try {
+            const attRes = await fetch(`${API_GET_ATT}?classId=${classId}`);
+            const attData = await attRes.json();
+            attendanceCount = attData.length || 0;
+          } catch (e) {
+            console.warn("Attendance fetch failed:", e);
+          }
+
+          let formattedTime = item.schedule_time || "";
+          if (formattedTime.includes("T")) {
+            const [date, time] = formattedTime.split("T");
+            formattedTime = `${date} ${time.substring(0,5)}`;
+          }
+
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${item.class_name || "Untitled"}</td>
+            <td>${formattedTime}</td>
+            <td>${attendanceCount}
+              <button class="btn-att" style="margin-left:8px" onclick="viewAttendance('${classId}')">View</button>
+            </td>
+            <td><a target="_blank" class="btn btn-join" href="${item.join_url}">Join</a></td>
+            <td><a target="_blank" class="btn btn-start" href="${item.start_url}">Start</a></td>
+            <td>${item.created_at ? new Date(item.created_at).toLocaleString() : ""}</td>
+          `;
+          body.appendChild(row);
+        }
+      } catch (e) {
+        loading.innerHTML = "Error: " + e.message;
+      }
+    }
+
+    function viewAttendance(classId) {
+      window.location.href = `attendance.html?classId=${classId}`;
+    }
+
+    fetchClasses();
+  </script>
+</body>
+</html>

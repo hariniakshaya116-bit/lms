@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Quizzes</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    header {
+      background-color: #3498db;
+      color: #fff;
+      text-align: center;
+      padding: 1em;
+    }
+
+    main {
+      padding: 20px;
+    }
+
+    section {
+      margin-bottom: 20px;
+    }
+
+    .container {
+      width: 80%;
+      margin: 0 auto;
+    }
+
+    .card {
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 10px 20px;
+      font-size: 16px;
+      text-align: center;
+      text-decoration: none;
+      background-color: #3498db;
+      color: #fff;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .quiz-result {
+      text-align: center;
+    }
+
+    .quiz-result h2 {
+      color: #3498db;
+    }
+    .logout-button{
+            position: absolute;
+            top: 75px; /* Adjust the top position to create a four-line gap */
+            left: 20px; /* Adjust the right position as needed */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 30px; /* Adjust the height for square shape */
+	        border-radius: 10%;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            text-decoration: none;
+            color: #000;
+        }
+
+        .logout-button:hover {
+            background-color: #eee; /* Change background color on hover if desired */
+        }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Quiz: Test Your Knowledge</h1>
+    <a href="course-content-1.html" class="logout-button">Back</a>
+  </header>
+  
+  <main>
+    <section class="quiz-questions">
+      <div class="question">
+        <h3>Question 1:</h3>
+        <p>What is the CSS full form?</p>
+        <input type="text" id="answer1" placeholder="Your Answer">
+        <h3>Question 2:</h3>
+        <p>How can we change the background color of an element?</p>
+        <input type="text" id="answer2" placeholder="Your Answer">
+        <h3>Question 3:</h3>
+        <p>How can we change the text color of an element?</p>
+        <input type="text" id="answer3" placeholder="Your Answer">
+        <h3>Question 4:</h3>
+        <p>In how many ways can CSS be written in?</p>
+        <input type="text" id="answer4" placeholder="Your Answer">
+        <h3>Question 5:</h3>
+        <p>What type of CSS is generally recommended for designing large web pages?</p>
+        <input type="text" id="answer5" placeholder="Your Answer">
+      </div>
+    </section>
+    
+    <section class="quiz-submit">
+      <button onclick="submitQuiz()" class="button">Submit Quiz</button>
+    </section>
+
+    <section class="quiz-result" style="display: none;">
+      <h2>Quiz Result</h2>
+      <p id="scoreDisplay"></p>
+    </section>
+  </main>
+  
+
+  <script src="quiz-script-1.js"></script> <!-- Include script for quiz functionality -->
+  <script>
+    function submitQuiz() {
+      var answer1 = document.getElementById("answer1").value;
+      var answer2 = document.getElementById("answer2").value;
+      var answer3 = document.getElementById("answer3").value;
+      var answer4 = document.getElementById("answer4").value;
+      var answer5 = document.getElementById("answer5").value;
+
+      var quizData = {
+        key1: answer1,
+        key2: answer2,
+        key3: answer3,
+        key4: answer4,
+        key5: answer5,
+      };
+
+      fetch("https://isi34cm3og.execute-api.us-east-1.amazonaws.com/dev", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": "YOUR_API_KEY",
+        },
+        body: JSON.stringify(quizData),
+      })
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById("scoreDisplay").innerText = data;
+          document.querySelector(".quiz-result").style.display = "block";
+        })
+        .catch(error => console.error("Error submitting quiz:", error));
+    }
+  </script>
+</body>
+</html>

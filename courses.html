@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Educator Courses</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    header {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      color: #fff;
+      text-align: center;
+      padding: 1.2em;
+      position: relative;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 26px;
+      letter-spacing: 0.5px;
+    }
+
+    .logout-button,
+    .add-course-button {
+      position: absolute;
+      top: 20px;
+      background: rgba(255, 255, 255, 0.85);
+      color: #333;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .logout-button:hover,
+    .add-course-button:hover {
+      background: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(255, 255, 255, 0.3);
+    }
+
+    .logout-button { left: 20px; }
+    .add-course-button { right: 20px; }
+
+    main {
+      padding: 30px 50px;
+    }
+
+    .accordion {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      cursor: pointer;
+      padding: 15px 20px;
+      width: 100%;
+      text-align: left;
+      border: none;
+      outline: none;
+      font-size: 18px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(8px);
+    }
+
+    .accordion.active,
+    .accordion:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-2px);
+    }
+
+    .panel {
+      display: none;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 15px 20px;
+      margin-bottom: 15px;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.9);
+      color: #333;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      padding: 15px;
+      margin: 12px 0;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      color: #2c3e50;
+    }
+
+    .card p {
+      color: #555;
+      font-size: 15px;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 10px 18px;
+      font-size: 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 10px rgba(118, 75, 162, 0.3);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Courses</h1>
+    <a href="index-2.html" class="logout-button">Back</a>
+    <a href="create-course-new.html" class="add-course-button">➕ Add Course</a>
+  </header>
+
+  <main>
+    <!-- Free Courses Accordion -->
+    <button class="accordion">Free Courses</button>
+    <div class="panel">
+      <div class="card"><h2>HTML</h2><p>Learn the basics of HTML for building web pages.</p><a href="course-content.html" class="button">Start</a></div>
+      <div class="card"><h2>CSS</h2><p>Understand styling and layout with CSS.</p><a href="course-content-1.html" class="button">Start</a></div>
+      <div class="card"><h2>JavaScript</h2><p>Make your web pages dynamic using JavaScript.</p><a href="course-content-2.html" class="button">Start</a></div>
+    </div>
+
+    <!-- Certified Courses Accordion -->
+    <button class="accordion">Certified Courses</button>
+    <div class="panel">
+      <div class="card"><h2>Python</h2><p>Learn Python for general-purpose programming.</p><a href="https://www.coursera.org/learn/python" class="button" target="_blank">Start</a></div>
+      <div class="card"><h2>C++</h2><p>Understand the fundamentals of C++ programming.</p><a href="https://www.coursera.org/learn/codio-cpp-basics" class="button" target="_blank">Start</a></div>
+    </div>
+
+    <!-- Dynamic Uploaded Courses Accordion -->
+    <button class="accordion">Uploaded Courses</button>
+    <div class="panel dynamic-courses">
+      <p id="status-msg">Loading uploaded courses...</p>
+    </div>
+  </main>
+
+  <script src="course-display-scripts-new.js"></script>
+  <script>
+    // Accordion toggle
+    const accordions = document.querySelectorAll(".accordion");
+    accordions.forEach(acc => {
+      acc.addEventListener("click", () => {
+        acc.classList.toggle("active");
+        const panel = acc.nextElementSibling;
+        panel.style.display = panel.style.display === "block" ? "none" : "block";
+      });
+    });
+  </script>
+</body>
+</html>

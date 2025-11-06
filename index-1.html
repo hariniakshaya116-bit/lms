@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Dashboard | LMS Portal</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 40px;
+      position: relative;
+    }
+
+    /* Fixed buttons */
+    .logout-button, .profile-button {
+      position: fixed;
+      top: 25px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.9);
+      color: #333;
+      font-weight: bold;
+      text-decoration: none;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .logout-button {
+      left: 25px;
+    }
+
+    .profile-button {
+      right: 25px;
+    }
+
+    .logout-button:hover, .profile-button:hover {
+      background: white;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 80px auto 0;
+    }
+
+    header {
+      background: rgba(255, 255, 255, 0.12);
+      color: white;
+      text-align: center;
+      padding: 30px;
+      border-radius: 15px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      margin-bottom: 40px;
+    }
+
+    header h1 {
+      font-size: 2.4rem;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 1.1rem;
+    }
+
+    main {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 50px;
+      border-radius: 15px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      animation: fadeIn 0.8s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    main h2 {
+      font-size: 2rem;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    main p {
+      color: #555;
+      margin-bottom: 35px;
+      font-size: 1.1rem;
+    }
+
+    .button {
+      display: inline-block;
+      margin: 12px 10px;
+      padding: 14px 32px;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      text-decoration: none;
+      color: white;
+      background: #667eea;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .button:hover {
+      background: #5a6de0;
+      transform: translateY(-4px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .button-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Fixed Top Buttons -->
+  <a
+    href="https://eu-north-1ifynk6kmt.auth.eu-north-1.amazoncognito.com/logout?client_id=43nmb21trrq705tpmr3tijpmar&logout_uri=https%3A%2F%2Fmain.d135emwb988wsw.amplifyapp.com%2Findex-4.html"
+    class="logout-button"
+  >
+    Log out
+  </a>
+
+  <a href="#" class="profile-button" id="profileLink">Profile</a>
+
+  <div class="container">
+    <header>
+      <h1>Student Dashboard</h1>
+      <p>Access your courses, join live sessions, and track your learning progress</p>
+    </header>
+
+    <main>
+      <h2>Welcome, Learner 👋</h2>
+      <p>Explore your learning journey below</p>
+
+      <div class="button-container">
+        <a href="courses-new.html" class="button">📚 Explore Courses</a>
+        <a href="join-class.html" class="button">🎥 Join Live Sessions</a>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Extract Cognito code from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get("code");
+
+    if (code) {
+      console.log("Authorization code:", code);
+      localStorage.setItem("auth_code", code);
+
+      // Update profile page link with code
+      const profileLink = document.getElementById("profileLink");
+      profileLink.href = `profile.html?code=${encodeURIComponent(code)}`;
+    } else {
+      console.warn("No code in URL — using stored code if available.");
+      const savedCode = localStorage.getItem("auth_code");
+      if (savedCode) {
+        const profileLink = document.getElementById("profileLink");
+        profileLink.href = `profile.html?code=${encodeURIComponent(savedCode)}`;
+      } else {
+        alert("No authorization code found. Please log in again.");
+        window.location.href = "index.html";
+      }
+    }
+  </script>
+</body>
+</html>

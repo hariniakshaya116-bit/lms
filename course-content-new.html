@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Course Content</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f4f4f4; }
+    header { background:#3498db; color:#fff; text-align:center; padding:1em; position:relative; }
+    main { width:80%; margin:0 auto; padding:20px; }
+    video { width:100%; border-radius:8px; background:#000; }
+    embed { width:100%; height:600px; border-radius:8px; background:#fff; }
+    .card { background:#fff; padding:20px; margin-bottom:20px; border-radius:5px; box-shadow:0 2px 4px rgba(0,0,0,0.1); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 id="course-title">Course</h1>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Video:</h2>
+      <video id="course-video" controls>
+        <source id="video-source" src="" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </section>
+
+    <section class="card">
+      <h2>Material:</h2>
+      <embed id="course-material" src="" type="application/pdf" />
+    </section>
+  </main>
+
+  <script>
+    const API_BASE = "https://vc3atpev41.execute-api.us-east-1.amazonaws.com/prod/courses";
+
+    async function loadCourseContent() {
+      const params = new URLSearchParams(window.location.search);
+      const courseId = params.get("id") || params.get("courseId");
+
+      console.log("Extracted courseId:", courseId);
+
+      if (!courseId) {
+        alert("No course selected in URL.");
+        return;
+      }
+
+      const apiUrl = `${API_BASE}/${courseId}`;
+      console.log("Fetching from:", apiUrl);
+
+      try {
+        const res = await fetch(apiUrl);
+        const rawText = await res.text();  // read as raw text first
+        console.log("Raw Response:\n", rawText);
+
+        let data;
+        try {
+          data = JSON.parse(rawText);
+        } catch (e) {
+          console.warn("Response is not valid JSON:", e);
+          return;
+        }
+
+        // If body contains stringified JSON, parse it again
+        const course = typeof data.body === "string" ? JSON.parse(data.body) : data;
+        console.log("Parsed Course Object:\n", course);
+
+        // Display course info if available
+        document.getElementById("course-title").textContent = course.title || "Untitled Course";
+
+        if (course.video_url) {
+          document.getElementById("video-source").src = course.video_url;
+          document.getElementById("course-video").load();
+        }
+        if (course.material_url) {
+          document.getElementById("course-material").src = course.material_url + "#toolbar=0";
+        }
+
+      } catch (err) {
+        console.error("Error loading course:", err);
+        alert("Failed to load course content. " + err.message);
+      }
+    }
+
+    loadCourseContent();
+  </script>
+</body>
+</html>

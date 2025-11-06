@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile | LMS Portal</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    .logout-button {
+      position: fixed;
+      top: 25px;
+      left: 25px;
+      background: rgba(255, 255, 255, 0.9);
+      color: #333;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .logout-button:hover {
+      background: white;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .profile-container {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+      padding: 50px;
+      width: 400px;
+      text-align: center;
+      animation: fadeIn 0.8s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      font-size: 2rem;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: #555;
+      margin: 8px 0;
+      font-size: 1rem;
+    }
+
+    #status {
+      font-size: 14px;
+      color: #777;
+      margin-top: 10px;
+    }
+
+    button {
+      margin-top: 25px;
+      padding: 12px 28px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    button:hover {
+      background: #5a6de0;
+      transform: translateY(-4px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <!-- Logout Button -->
+  <a
+    href="index-1.html"
+    class="logout-button"
+  >
+    Back
+  </a>
+
+  <div class="profile-container" id="profileContainer">
+    <h2>Loading profile...</h2>
+    <p id="status">Please wait while we fetch your information.</p>
+  </div>
+
+  <script>
+    const API_URL = "https://43jqxl3q3k.execute-api.us-east-1.amazonaws.com/prod/callback";
+
+    async function fetchProfile() {
+      const container = document.getElementById("profileContainer");
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get("code");
+
+      const savedProfile = JSON.parse(localStorage.getItem("userProfile") || "null");
+      const savedCode = localStorage.getItem("authCode");
+
+      if (code) {
+        if (!savedCode || code !== savedCode) {
+          try {
+            const response = await fetch(`${API_URL}?code=${encodeURIComponent(code)}`);
+            const data = await response.json();
+
+            if (!response.ok) throw new Error(data.error || `Failed to fetch profile (status ${response.status})`);
+
+            const profile = data.profile || {};
+            localStorage.setItem("userProfile", JSON.stringify(profile));
+            localStorage.setItem("authCode", code);
+            window.history.replaceState({}, document.title, window.location.pathname);
+            renderProfile(profile);
+            return;
+          } catch (err) {
+            console.error("Profile fetch error:", err);
+            if (savedProfile) {
+              container.innerHTML = `
+                <h2>${savedProfile.name || "Unknown User"}</h2>
+                <p><strong>Email:</strong> ${savedProfile.email || "N/A"}</p>
+                <p><strong>Username:</strong> ${savedProfile.username || "N/A"}</p>
+                <p id="status">Could not refresh profile: ${err.message}. Showing stored profile.</p>
+                <button onclick="goToDashboard()">Go to Dashboard</button>
+              `;
+              window.history.replaceState({}, document.title, window.location.pathname);
+              return;
+            }
+            container.innerHTML = `
+              <h2>Failed to fetch profile.</h2>
+              <p id="status">${err.message}</p>
+              <button onclick="goToDashboard()">Go to Dashboard</button>
+            `;
+            window.history.replaceState({}, document.title, window.location.pathname);
+            return;
+          }
+        } else {
+          window.history.replaceState({}, document.title, window.location.pathname);
+          if (savedProfile) return renderProfile(savedProfile);
+          container.innerHTML = `
+            <h2>No profile found</h2>
+            <p id="status">Authorization code was already used and no stored profile exists. Please log in again.</p>
+            <button onclick="goToDashboard()">Go to Dashboard</button>
+          `;
+          return;
+        }
+      }
+
+      if (!code && savedProfile) return renderProfile(savedProfile);
+
+      container.innerHTML = `
+        <h2>No profile found</h2>
+        <p id="status">Please log in first to view your profile.</p>
+        <button onclick="goToDashboard()">Go to Dashboard</button>
+      `;
+    }
+
+    function renderProfile(profile) {
+      const container = document.getElementById("profileContainer");
+      container.innerHTML = `
+        <h2>${profile.name || "Unknown User"}</h2>
+        <p><strong>Email:</strong> ${profile.email || "N/A"}</p>
+        <p><strong>Username:</strong> ${profile.username || "N/A"}</p>
+        <button onclick="goToDashboard()">Go to Dashboard</button>
+      `;
+    }
+
+    function goToDashboard() {
+      window.location.href = "index-1.html";
+    }
+
+    fetchProfile();
+  </script>
+</body>
+</html>

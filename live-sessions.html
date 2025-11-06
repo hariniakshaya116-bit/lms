@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Create Live Class | Educator</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 40px;
+    position: relative;
+  }
+
+  /* Back Button */
+  .back-btn {
+    position: fixed;
+    top: 25px;
+    left: 25px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    z-index: 1000;
+  }
+
+  .back-btn:hover {
+    background: white;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  }
+
+  .container {
+    max-width: 600px;
+    margin: 80px auto 0;
+  }
+
+  header {
+    background: rgba(255, 255, 255, 0.12);
+    color: white;
+    text-align: center;
+    padding: 30px;
+    border-radius: 15px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    margin-bottom: 40px;
+  }
+
+  header h1 {
+    font-size: 2rem;
+    margin-bottom: 8px;
+  }
+
+  header p {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 1rem;
+  }
+
+  main {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    animation: fadeIn 0.8s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  h2 {
+    text-align: center;
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: block;
+    margin-top: 12px;
+    color: #555;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 15px;
+  }
+
+  button {
+    display: block;
+    width: 100%;
+    margin-top: 20px;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    background: #667eea;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  button:hover {
+    background: #5a6de0;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  }
+
+  .result {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 15px;
+  }
+
+  .small {
+    text-align: center;
+    margin-top: 10px;
+    color: #666;
+    font-size: 13px;
+  }
+
+  .link-buttons {
+    margin-top: 12px;
+  }
+
+  .link-buttons a {
+    display: inline-block;
+    margin: 6px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s ease;
+  }
+
+  .join {
+    background: #28a745;
+  }
+
+  .start {
+    background: #007bff;
+  }
+
+  .join:hover {
+    background: #218838;
+  }
+
+  .start:hover {
+    background: #0056b3;
+  }
+</style>
+</head>
+<body>
+
+<a href="index-2.html" class="back-btn">← Back</a>
+
+<div class="container">
+  <header>
+    <h1>🎥 Create Live Class</h1>
+    <p>Schedule and start your live sessions effortlessly</p>
+  </header>
+
+  <main>
+    <h2>Class Details</h2>
+
+    <label>Class Name</label>
+    <input id="className" placeholder="Enter class name (e.g. Physics - Motion)" />
+
+    <label>Schedule Time</label>
+    <input id="scheduleTime" type="datetime-local" />
+
+    <label>Duration (minutes)</label>
+    <input id="duration" type="number" value="45" />
+
+    <button id="createBtn">Create Class</button>
+
+    <div id="result" class="result"></div>
+    <div class="small">After creation, you’ll get Join / Start links below.</div>
+  </main>
+</div>
+
+<script>
+const API_CREATE = "https://3qfr9chuv8.execute-api.us-east-1.amazonaws.com/prod/create-class";
+
+document.getElementById("createBtn").onclick = async function() {
+  const name = document.getElementById("className").value.trim();
+  const schedule = document.getElementById("scheduleTime").value;
+  const duration = parseInt(document.getElementById("duration").value || "45", 10);
+  const result = document.getElementById("result");
+
+  if (!name) {
+    result.innerHTML = "<div style='color:#b30000'>⚠️ Please enter a class name.</div>";
+    return;
+  }
+
+  result.innerHTML = "⏳ Creating class...";
+
+  try {
+    const payload = { class_name: name, schedule_time: schedule, duration: duration };
+    const res = await fetch(API_CREATE, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || JSON.stringify(data));
+
+    result.innerHTML = `
+      <div><b>✅ Class Created:</b> ${name}</div>
+      <div class="link-buttons">
+        <a href="${data.join_url}" target="_blank" class="join">Join Class</a>
+        <a href="${data.start_url}" target="_blank" class="start">Start Class</a>
+      </div>
+      <div style="margin-top:8px;color:#007;">Meeting ID: ${data.meetingId}</div>
+    `;
+
+    document.getElementById("className").value = "";
+    document.getElementById("scheduleTime").value = "";
+  } catch (err) {
+    result.innerHTML = `<div style='color:#b30000'>❌ Error: ${err.message}</div>`;
+  }
+};
+</script>
+
+</body>
+</html>
