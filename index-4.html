@@ -69,6 +69,7 @@
   </style>
 </head>
 <body>
+  <script src="auth-check.js"></script>
 
   <div class="main-container">
     <h2>Successfully Logging Out</h2>
@@ -78,6 +79,7 @@
 
   <script>
     // Prevent navigating back after logout
+    localStorage.clear();
     history.pushState(null, null, location.href);
     window.onpopstate = function () {
       history.go(1);
