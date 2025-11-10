@@ -36,7 +36,7 @@
 
   // --- Step 4: If no code, redirect to Cognito Hosted UI login ---
   if (!storedCode) {
-    const loginUrl = `${config.domain}/login?client_id=${config.clientId}&response_type=code&scope=email+openid+profile&redirect_uri=${config.redirectUri}`;
+    const loginUrl = `https://main.dijffme8w1boe.amplifyapp.com`;
     window.location.href = loginUrl;
     return;
   }
