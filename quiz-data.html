@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>All Quizes | LMS Portal</title>
+<title>All Quizzes | LMS Portal</title>
 <style>
 * {margin:0; padding:0; box-sizing:border-box;}
 body {
@@ -33,6 +33,26 @@ th, td{padding:12px 15px; text-align:left; border:none;}
 th{background-color:#667eea;color:#fff;font-weight:600;}
 tr:nth-child(even){background-color:rgba(102,126,234,0.1);}
 tr:hover{background-color:rgba(102,126,234,0.2); transition: background 0.3s ease;}
+button.view-btn {
+  padding:6px 12px;
+  border:none;
+  border-radius:6px;
+  background-color:#007bff;
+  color:white;
+  cursor:pointer;
+}
+button.view-btn:hover { background-color:#0056b3; }
+
+#quizDetails{
+  margin-top:30px;
+  background:#f9f9f9;
+  padding:20px;
+  border-radius:12px;
+  display:none;
+}
+.question { margin-bottom:15px; }
+.question h3 { margin-bottom:8px; }
+label { display:block; margin-left:10px; }
 </style>
 </head>
 <body>
@@ -42,14 +62,22 @@ tr:hover{background-color:rgba(102,126,234,0.2); transition: background 0.3s eas
 <h1>All Quizzes</h1>
 <table id="quizzesTable">
 <thead>
-<tr><th>Quiz ID</th><th>Title</th><th>Created At</th><th>Scheduled From</th><th>Scheduled To</th></tr>
+<tr><th>Quiz ID</th><th>Title</th><th>Created At</th><th>Scheduled From</th><th>Scheduled To</th><th>Action</th></tr>
 </thead>
 <tbody></tbody>
 </table>
+
+<div id="quizDetails">
+  <h2>Quiz Details</h2>
+  <div id="quizTitle"></div>
+  <div id="questionsContainer"></div>
+</div>
 </div>
 
 <script>
 const API_BASE="https://vwnzyha9dd.execute-api.us-east-1.amazonaws.com/prod";
+
+// Load all quizzes
 async function loadQuizzes(){
   try{
     const res=await fetch(`${API_BASE}/getAllQuizzes`);
@@ -58,11 +86,49 @@ async function loadQuizzes(){
     tbody.innerHTML="";
     data.quizzes.forEach(q=>{
       const tr=document.createElement("tr");
-      tr.innerHTML=`<td>${q.quizId}</td><td>${q.title}</td><td>${q.created_at||"-"}</td><td>${q.start_time||"-"}</td><td>${q.end_time||"-"}</td>`;
+      tr.innerHTML=`
+        <td>${q.quizId}</td>
+        <td>${q.title}</td>
+        <td>${q.created_at||"-"}</td>
+        <td>${q.start_time||"-"}</td>
+        <td>${q.end_time||"-"}</td>
+        <td><button class="view-btn" onclick="viewQuiz('${q.quizId}')">View</button></td>
+      `;
       tbody.appendChild(tr);
     });
   }catch(err){console.error(err); alert("Failed to load quizzes");}
 }
+
+// Fetch and display quiz questions/options
+async function viewQuiz(quizId){
+  try{
+    const res=await fetch(`${API_BASE}/getQuiz?quizId=${quizId}`);
+    const data=await res.json();
+    if(data.error){ alert(data.error); return; }
+
+    document.getElementById("quizTitle").innerHTML=`<strong>${data.title}</strong>`;
+    const container=document.getElementById("questionsContainer");
+    container.innerHTML="";
+
+    data.questions.forEach((q, idx)=>{
+      const div=document.createElement("div");
+      div.classList.add("question");
+      div.innerHTML=`<h3>${idx+1}. ${q.question}</h3>`;
+      if(Array.isArray(q.options)){
+        q.options.forEach(opt=>{
+          const label=document.createElement("label");
+          label.textContent=opt;
+          div.appendChild(label);
+        });
+      }
+      container.appendChild(div);
+    });
+
+    document.getElementById("quizDetails").style.display="block";
+  }catch(err){console.error(err); alert("Failed to load quiz details");}
+}
+
+// Load quizzes on page load
 loadQuizzes();
 </script>
 <script src="auth-check.js"></script>
