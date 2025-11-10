@@ -1,11 +1,11 @@
 (function () {
-  // --- Identify if current page belongs to Educator or Student ---
+  // --- Detect if current page belongs to Educator or Student ---
   const isEducator =
     window.location.pathname.includes("index-2") ||
     window.location.pathname.includes("educator") ||
     window.location.href.includes("teacher");
 
-  // --- Cognito configuration ---
+  // --- Cognito config for both sides ---
   const cognitoConfig = {
     student: {
       domain: "https://us-east-1tj9jinyqx.auth.us-east-1.amazoncognito.com",
@@ -31,28 +31,40 @@
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 
-  // --- Step 3: Get code from local storage (if already logged in) ---
+  // --- Step 3: Get code from local storage ---
   const storedCode = localStorage.getItem("auth_code");
 
-  // --- Step 4: If no code, redirect to Cognito Hosted UI login ---
-  if (!storedCode) {
-    const loginUrl = `https://main.dijffme8w1boe.amplifyapp.com`;
-    window.location.href = loginUrl;
-    return;
-  }
-
-  // --- Step 5: Prevent back navigation ONLY on login pages ---
-  const isLoginPage =
+  // --- Step 4: Handle login protection ---
+  const isMainPage =
     window.location.pathname.includes("index-1.html") ||
-    window.location.pathname.includes("index-2.html");
+    window.location.pathname.includes("index-2.html") ||
+    window.location.pathname === "/" ||
+    window.location.pathname === "/index.html";
 
-  if (isLoginPage) {
-    history.pushState(null, null, location.href);
-    window.onpopstate = function () {
-      history.go(1);
-    };
+  if (!storedCode) {
+    // 🚫 No auth_code → block access to inner pages
+    if (!isMainPage) {
+      const redirectUrl = isEducator
+        ? "https://main.dijffme8w1boe.amplifyapp.com/index-2.html"
+        : "https://main.dijffme8w1boe.amplifyapp.com/index-1.html";
+      window.location.href = redirectUrl;
+      return;
+    }
   } else {
-    // Allow normal back navigation for all inside pages
-    window.onpopstate = null;
+    // ✅ Already logged in → prevent being sent back to login page
+    if (isMainPage) {
+      // Example: redirect logged-in users away from login screen
+      const homeUrl = isEducator
+        ? "https://main.dijffme8w1boe.amplifyapp.com/educator-dashboard.html"
+        : "https://main.dijffme8w1boe.amplifyapp.com/student-dashboard.html";
+      window.location.href = homeUrl;
+      return;
+    }
   }
+
+  // --- Step 5: Prevent back button after logout ---
+  history.pushState(null, null, location.href);
+  window.onpopstate = function () {
+    history.go(1);
+  };
 })();
