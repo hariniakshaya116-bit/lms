@@ -31,18 +31,17 @@
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 
-  // --- Step 3: Get code from local storage ---
+  // --- Step 3: Get code from local storage (if already logged in) ---
   const storedCode = localStorage.getItem("auth_code");
 
-  // --- Step 4: Protect dashboards and inner pages ---
+  // --- Step 4: If no code, redirect to your own main page ---
   if (!storedCode) {
-    // User is NOT logged in → force login via Cognito
-    const loginUrl = `https://main.dijffme8w1boe.amplifyapp.com`;
+    const loginUrl = "https://main.dijffme8w1boe.amplifyapp.com"; // <-- fixed (added quotes)
     window.location.href = loginUrl;
     return;
   }
 
-  // --- Step 5: Prevent using back button after logout ---
+  // --- Step 5: Prevent back button after logout ---
   history.pushState(null, null, location.href);
   window.onpopstate = function () {
     history.go(1);
