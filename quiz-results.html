@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Results | LMS Portal</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"Segoe UI",Arial,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;padding:40px;color:#333;}
+.back-button{position:fixed;top:25px;left:25px;background:rgba(255,255,255,0.9);color:#333;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:bold;box-shadow:0 5px 15px rgba(0,0,0,0.15);transition:all 0.3s ease;z-index:1000;}
+.back-button:hover{background:white;transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,0.25);}
+.container{max-width:900px;margin:0 auto;background:rgba(255,255,255,0.95);padding:40px;border-radius:15px;box-shadow:0 15px 35px rgba(0,0,0,0.15);backdrop-filter:blur(8px);animation:fadeIn 0.8s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
+h1{text-align:center;margin-bottom:30px;color:#333;}
+input,button{padding:12px;margin:10px 0;font-size:16px;border-radius:10px;border:1px solid #ccc;}
+input:focus{outline:none;border-color:#667eea;box-shadow:0 0 8px rgba(102,126,234,0.4);}
+button{background:#667eea;color:white;border:none;cursor:pointer;transition:all 0.3s ease; font-weight:bold;}
+button:hover{background:#5a6de0; transform:translateY(-2px);}
+table{width:100%;border-collapse:collapse;margin-top:20px;border-radius:10px;overflow:hidden; box-shadow:0 8px 20px rgba(0,0,0,0.1);}
+th,td{padding:12px 15px;text-align:left;border:none;}
+th{background-color:#667eea;color:#fff;font-weight:600;}
+tr:nth-child(even){background-color:rgba(102,126,234,0.1);}
+tr:hover{background-color:rgba(102,126,234,0.2);transition:background 0.3s ease;}
+</style>
+</head>
+<body>
+<a href="quizz.html" class="back-button">← Back</a>
+<div class="container">
+<h1>Quiz Results</h1>
+<input type="text" id="quizId" placeholder="Enter Quiz ID" />
+<button onclick="loadResults()">Get Results</button>
+<table id="resultsTable" style="display:none;">
+<thead><tr><th>Student Name</th><th>Email</th><th>Score</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+<script>
+const API_BASE="https://vwnzyha9dd.execute-api.us-east-1.amazonaws.com/prod";
+async function loadResults(){
+  const quizId=document.getElementById("quizId").value.trim();
+  if(!quizId){alert("Please enter a Quiz ID");return;}
+  try{
+    const res=await fetch(`${API_BASE}/getQuizResults?quizId=${quizId}`);
+    const data=await res.json();
+    if(data.error){alert(data.error);return;}
+    const tbody=document.querySelector("#resultsTable tbody");
+    tbody.innerHTML="";
+    (data.results||[]).forEach(r=>{
+      const tr=document.createElement("tr");
+      tr.innerHTML=`<td>${r.name}</td><td>${r.studentEmail}</td><td>${r.score}</td>`;
+      tbody.appendChild(tr);
+    });
+    document.getElementById("resultsTable").style.display="table";
+  }catch(err){console.error(err); alert("Failed to load results.");}
+}
+</script>
+<script src="auth-check.js"></script>
+</body>
+</html>

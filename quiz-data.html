@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>All Quizes | LMS Portal</title>
+<style>
+* {margin:0; padding:0; box-sizing:border-box;}
+body {
+  font-family:"Segoe UI",Arial,sans-serif;
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  min-height:100vh;
+  padding:40px;
+  color:#333;
+}
+.back-button{
+  position:fixed; top:25px; left:25px; background:rgba(255,255,255,0.9); color:#333;
+  padding:10px 20px; border-radius:8px; text-decoration:none; font-weight:bold;
+  box-shadow:0 5px 15px rgba(0,0,0,0.15); transition:all 0.3s ease; z-index:1000;
+}
+.back-button:hover { background:white; transform:translateY(-3px); box-shadow:0 8px 20px rgba(0,0,0,0.25); }
+
+.container{
+  max-width:1000px; margin:0 auto; background:rgba(255,255,255,0.95);
+  padding:40px; border-radius:15px; box-shadow:0 15px 35px rgba(0,0,0,0.15);
+  backdrop-filter:blur(8px); animation:fadeIn 0.8s ease;
+}
+@keyframes fadeIn { from{opacity:0;transform:translateY(15px);} to{opacity:1;transform:translateY(0);} }
+
+h1{text-align:center;margin-bottom:30px;color:#333;}
+table{width:100%;border-collapse:collapse;border-radius:10px;overflow:hidden; box-shadow:0 8px 20px rgba(0,0,0,0.1);}
+th, td{padding:12px 15px; text-align:left; border:none;}
+th{background-color:#667eea;color:#fff;font-weight:600;}
+tr:nth-child(even){background-color:rgba(102,126,234,0.1);}
+tr:hover{background-color:rgba(102,126,234,0.2); transition: background 0.3s ease;}
+</style>
+</head>
+<body>
+<a href="quizz.html" class="back-button">← Back</a>
+
+<div class="container">
+<h1>All Quizzes</h1>
+<table id="quizzesTable">
+<thead>
+<tr><th>Quiz ID</th><th>Title</th><th>Created At</th><th>Scheduled From</th><th>Scheduled To</th></tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+<script>
+const API_BASE="https://vwnzyha9dd.execute-api.us-east-1.amazonaws.com/prod";
+async function loadQuizzes(){
+  try{
+    const res=await fetch(`${API_BASE}/getAllQuizzes`);
+    const data=await res.json();
+    const tbody=document.querySelector("#quizzesTable tbody");
+    tbody.innerHTML="";
+    data.quizzes.forEach(q=>{
+      const tr=document.createElement("tr");
+      tr.innerHTML=`<td>${q.quizId}</td><td>${q.title}</td><td>${q.created_at||"-"}</td><td>${q.start_time||"-"}</td><td>${q.end_time||"-"}</td>`;
+      tbody.appendChild(tr);
+    });
+  }catch(err){console.error(err); alert("Failed to load quizzes");}
+}
+loadQuizzes();
+</script>
+<script src="auth-check.js"></script>
+</body>
+</html>

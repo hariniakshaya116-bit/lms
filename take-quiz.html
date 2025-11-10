@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Take Quiz | LMS Portal</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 40px;
+  color: #333;
+}
+
+.back-button {
+  position: fixed;
+  top: 25px;
+  left: 25px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+.back-button:hover {
+  background: white;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+}
+
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+  background: rgba(255,255,255,0.95);
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+  backdrop-filter: blur(8px);
+  animation: fadeIn 0.8s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+h1,h2 { text-align:center; color:#333; }
+input[type="text"], input[type="email"] {
+  width: calc(100% - 24px);
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  transition: 0.3s;
+}
+input:focus { border-color: #667eea; box-shadow:0 0 8px rgba(102,126,234,0.4); outline:none; }
+
+button {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  margin-top: 10px;
+}
+button:hover {
+  background: #5a6de0;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+.question { margin-bottom:20px; }
+.question h3 { font-size:18px; margin-bottom:8px; color:#222; }
+label { display:block; margin:6px 0; cursor:pointer; }
+.result { text-align:center; margin-top:20px; font-weight:bold; font-size:18px; color:#333; }
+</style>
+</head>
+<body>
+
+<a href="index-1.html" class="back-button">← Back</a>
+
+<div class="container">
+  <h1>Student Quiz Portal</h1>
+  <div id="user-section">
+    <h2>Enter Details</h2>
+    <input type="text" id="studentName" placeholder="Your Name" required>
+    <input type="email" id="studentEmail" placeholder="Your Email" required>
+    <input type="text" id="quizId" placeholder="Quiz ID (provided by educator)" required>
+    <button onclick="loadQuiz()">Start Quiz</button>
+  </div>
+
+  <div id="quiz-section" style="display:none;">
+    <h2>Quiz</h2>
+    <form id="quizForm"></form>
+    <button onclick="submitQuiz()">Submit Quiz</button>
+  </div>
+
+  <div class="result" id="result"></div>
+</div>
+
+<script>
+const API_BASE = "https://vwnzyha9dd.execute-api.us-east-1.amazonaws.com/prod";
+let currentQuiz = [];
+
+async function loadQuiz() {
+  const quizId = document.getElementById("quizId").value.trim();
+  const name = document.getElementById("studentName").value.trim();
+  const email = document.getElementById("studentEmail").value.trim();
+  if(!quizId || !name || !email){ alert("Please fill all fields"); return; }
+
+  const res = await fetch(`${API_BASE}/getQuiz?quizId=${quizId}`);
+  const data = await res.json();
+  if(data.error){ alert(data.error); return; }
+
+  currentQuiz = data.questions;
+  const quizForm = document.getElementById("quizForm");
+  quizForm.innerHTML = "";
+
+  data.questions.forEach((q, idx) => {
+    const div = document.createElement("div");
+    div.classList.add("question");
+    div.innerHTML = `
+      <h3>${idx+1}. ${q.question}</h3>
+      ${q.options.map(opt => `<label><input type="radio" name="q${idx}" value="${opt}" required> ${opt}</label>`).join('')}
+    `;
+    quizForm.appendChild(div);
+  });
+
+  document.getElementById("user-section").style.display = "none";
+  document.getElementById("quiz-section").style.display = "block";
+}
+
+async function submitQuiz() {
+  const name = document.getElementById("studentName").value.trim();
+  const email = document.getElementById("studentEmail").value.trim();
+  const quizId = document.getElementById("quizId").value.trim();
+
+  const answers = currentQuiz.map((q, idx) => {
+    const selected = document.querySelector(`input[name="q${idx}"]:checked`);
+    return selected ? selected.value : "";
+  });
+
+  const res = await fetch(`${API_BASE}/submitQuiz`, {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ quizId, studentName: name, studentEmail: email, answers })
+  });
+
+  const data = await res.json();
+  document.getElementById("quiz-section").style.display = "none";
+  document.getElementById("result").innerHTML = `✅ Your score: ${data.score} / ${currentQuiz.length}`;
+}
+</script>
+<script src="auth-check.js"></script>
+</body>
+</html>
