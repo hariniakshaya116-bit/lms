@@ -5,7 +5,7 @@
     window.location.pathname.includes("educator") ||
     window.location.href.includes("teacher");
 
-  // --- Cognito config ---
+  // --- Cognito config for both sides ---
   const cognitoConfig = {
     student: {
       domain: "https://us-east-1tj9jinyqx.auth.us-east-1.amazoncognito.com",
@@ -34,23 +34,16 @@
   // --- Step 3: Get code from local storage (if already logged in) ---
   const storedCode = localStorage.getItem("auth_code");
 
-  // --- Step 4: If no code, redirect to your login page ---
+  // --- Step 4: If no code, redirect to Cognito Hosted UI login ---
   if (!storedCode) {
-    const loginUrl = isEducator
-      ? config.redirectUri
-      : config.redirectUri; // login page for student or educator
+    const loginUrl = https://main.dijffme8w1boe.amplifyapp.com;
     window.location.href = loginUrl;
     return;
   }
 
-  // --- Step 5: Handle logout safely ---
-  // Optional: listen for a custom logout event and clear localStorage
-  window.addEventListener("logout", () => {
-    localStorage.removeItem("auth_code");
-    window.location.href = isEducator ? config.redirectUri : config.redirectUri;
-  });
-
-  // --- Step 6: Prevent back button abuse after logout ---
-  // Only push state if user is logged in
-  history.replaceState(null, null, location.href);
+  // --- Step 5: Prevent back button after logout ---
+  history.pushState(null, null, location.href);
+  window.onpopstate = function () {
+    history.go(1);
+  };
 })();
