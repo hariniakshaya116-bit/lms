@@ -1,11 +1,11 @@
 (function () {
-  // --- Detect if current page belongs to Educator or Student ---
+  // --- Identify if current page belongs to Educator or Student ---
   const isEducator =
     window.location.pathname.includes("index-2") ||
     window.location.pathname.includes("educator") ||
     window.location.href.includes("teacher");
 
-  // --- Cognito config for both sides ---
+  // --- Cognito configuration ---
   const cognitoConfig = {
     student: {
       domain: "https://us-east-1tj9jinyqx.auth.us-east-1.amazoncognito.com",
@@ -36,14 +36,23 @@
 
   // --- Step 4: If no code, redirect to Cognito Hosted UI login ---
   if (!storedCode) {
-    const loginUrl = https://main.dijffme8w1boe.amplifyapp.com;
+    const loginUrl = `${config.domain}/login?client_id=${config.clientId}&response_type=code&scope=email+openid+profile&redirect_uri=${config.redirectUri}`;
     window.location.href = loginUrl;
     return;
   }
 
-  // --- Step 5: Prevent back button after logout ---
-  history.pushState(null, null, location.href);
-  window.onpopstate = function () {
-    history.go(1);
-  };
+  // --- Step 5: Prevent back navigation ONLY on login pages ---
+  const isLoginPage =
+    window.location.pathname.includes("index-1.html") ||
+    window.location.pathname.includes("index-2.html");
+
+  if (isLoginPage) {
+    history.pushState(null, null, location.href);
+    window.onpopstate = function () {
+      history.go(1);
+    };
+  } else {
+    // Allow normal back navigation for all inside pages
+    window.onpopstate = null;
+  }
 })();
