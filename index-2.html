@@ -157,8 +157,9 @@
     </main>
   </div>
 
-  <!-- Store auth code once -->
+  <!-- Store auth code once and clear on logout -->
   <script>
+    // Store auth code once
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get("code");
 
@@ -166,7 +167,16 @@
       console.log("Storing auth code:", code);
       localStorage.setItem("auth_code", code);
     }
-    // After storing once, leave it until logout
+
+    // Clear auth_code on logout
+    const logoutButton = document.querySelector(".logout-button");
+    if (logoutButton) {
+      logoutButton.addEventListener("click", () => {
+        localStorage.removeItem("auth_code");
+        console.log("Auth code cleared on logout");
+        // The link will still proceed to Cognito logout
+      });
+    }
   </script>
 </body>
 </html>
