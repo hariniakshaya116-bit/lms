@@ -152,9 +152,21 @@
         <a href="classes.html" class="button">🎓 Classes</a>
         <a href="live-sessions.html" class="button">🎥 Live Sessions</a>
         <a href="quiz.html" class="button">📝 Quiz</a>
+        <!-- <a href="quizz.html" class="back-button">← Back</a> -->
       </div>
     </main>
   </div>
+
+  <!-- Store auth code once -->
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get("code");
+
+    if (code && !localStorage.getItem("auth_code")) {
+      console.log("Storing auth code:", code);
+      localStorage.setItem("auth_code", code);
+    }
+    // After storing once, leave it until logout
+  </script>
 </body>
 </html>
-
