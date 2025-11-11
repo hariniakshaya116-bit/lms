@@ -5,12 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Student Classes | LMS Portal</title>
 <style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-
+  * { margin:0; padding:0; box-sizing:border-box; }
   body {
     font-family: "Segoe UI", sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -18,115 +13,49 @@
     padding: 60px 30px;
     color: #333;
   }
-
-  /* Back Button - top-left */
   .back-btn {
     position: fixed;
-    top: 25px;
-    left: 25px;
-    background: rgba(255, 255, 255, 0.9);
+    top: 25px; left: 25px;
+    background: rgba(255,255,255,0.9);
     color: #333;
     padding: 10px 18px;
     border-radius: 8px;
     text-decoration: none;
     font-weight: bold;
     font-size: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
     transition: all 0.3s ease;
   }
-
-  .back-btn:hover {
-    background: #fff;
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-  }
+  .back-btn:hover { background:#fff; transform: translateY(-3px); box-shadow:0 8px 20px rgba(0,0,0,0.25); }
 
   .wrap {
     max-width: 1000px;
     margin: 100px auto 40px;
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255,255,255,0.95);
     backdrop-filter: blur(10px);
     border-radius: 15px;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
     padding: 40px 50px;
     animation: fadeIn 0.8s ease;
   }
+  @keyframes fadeIn { from{opacity:0; transform:translateY(15px);} to{opacity:1; transform:translateY(0);} }
+  h1 { text-align:center; color:#333; margin-bottom:30px; font-size:2rem; }
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(15px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  h1 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 30px;
-    font-size: 2rem;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-  }
-
-  th, td {
-    padding: 14px 16px;
-    border-bottom: 1px solid #eaeaea;
-    text-align: center;
-    font-size: 1rem;
-  }
-
-  th {
-    background: #667eea;
-    color: #fff;
-    cursor: pointer;
-    user-select: none;
-    transition: background 0.3s ease;
-  }
-
-  th:hover {
-    background: #5a6de0;
-  }
-
-  tr:hover td {
-    background: rgba(102, 126, 234, 0.08);
-  }
-
+  table { width:100%; border-collapse:collapse; background:rgba(255,255,255,0.9); border-radius:10px; overflow:hidden; box-shadow:0 5px 15px rgba(0,0,0,0.08); }
+  th, td { padding:14px 16px; border-bottom:1px solid #eaeaea; text-align:center; font-size:1rem; }
+  th { background:#667eea; color:#fff; cursor:pointer; user-select:none; transition: background 0.3s ease; }
+  th:hover { background:#5a6de0; }
+  tr:hover td { background: rgba(102,126,234,0.08); }
   button {
-    background: #667eea;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 16px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 0.95rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    background:#667eea; color:#fff; border:none; border-radius:8px; padding:10px 16px; cursor:pointer; font-weight:600;
+    font-size:0.95rem; transition: all 0.3s ease; box-shadow:0 5px 15px rgba(102,126,234,0.3);
   }
+  button:hover { background:#5a6de0; transform:translateY(-3px); box-shadow:0 8px 20px rgba(102,126,234,0.4); }
+  td button:active { transform:scale(0.97); }
 
-  button:hover {
-    background: #5a6de0;
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-  }
-
-  td button:active {
-    transform: scale(0.97);
-  }
-
-  @media (max-width: 768px) {
-    .wrap {
-      padding: 25px;
-    }
-    th, td {
-      font-size: 0.9rem;
-      padding: 10px;
-    }
+  @media (max-width:768px) {
+    .wrap { padding:25px; }
+    th, td { font-size:0.9rem; padding:10px; }
   }
 </style>
 </head>
@@ -159,8 +88,7 @@ async function fetchClasses() {
     tbody.innerHTML = "";
 
     data.forEach(cls => {
-      const classId = cls.meetingId || cls.meeting_id || cls.class_id || cls.id || cls.classId || "Unknown";
-      const meetingId = cls.meetingId || cls.meeting_id || cls.class_id || cls.id || cls.classId || "Unknown";
+      const classId = cls.meetingId || cls.classId || "Unknown";
       const joinUrl = cls.join_url || "#";
 
       let rawTime = cls.schedule_time || cls.created_at || "";
@@ -184,24 +112,27 @@ async function fetchClasses() {
 }
 
 async function joinClass(classId, joinUrl) {
-  const studentName = prompt("Enter your name to mark attendance:");
+  // Ask student name for attendance and Zoom
+  const studentName = prompt("Enter your name for attendance and Zoom:");
   if (!studentName) return;
+
+  // Append student name to Zoom join link
+  let joinLink = joinUrl;
+  if (joinLink && joinLink.includes("zoom.us")) {
+    joinLink += `&uname=${encodeURIComponent(studentName)}`;
+  }
 
   const joinTimeIST = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
   console.log("Joining time (IST):", joinTimeIST);
 
-  const attendanceData = {
-    classId: classId,
-    studentName: studentName
-  };
-
+  // Record attendance
+  const attendanceData = { classId, studentName };
   try {
     const res = await fetch(API_ADD_ATT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(attendanceData)
     });
-
     const result = await res.json();
     if (res.ok) {
       alert(`✅ Attendance marked at ${result.joinTimeIST || joinTimeIST}`);
@@ -212,8 +143,9 @@ async function joinClass(classId, joinUrl) {
     console.error("Attendance failed:", err);
     alert("⚠️ Could not record attendance");
   } finally {
-    if (joinUrl && joinUrl !== "#") {
-      window.open(joinUrl, "_blank");
+    // Open Zoom join link
+    if (joinLink && joinLink !== "#") {
+      window.open(joinLink, "_blank");
     }
   }
 }
@@ -225,17 +157,17 @@ function sortTable(columnIndex) {
   const ascending = table.dataset.sortOrder !== "asc";
   table.dataset.sortOrder = ascending ? "asc" : "desc";
 
-  rows.sort((a, b) => {
+  rows.sort((a,b)=>{
     const cellA = a.children[columnIndex].innerText.toLowerCase();
     const cellB = b.children[columnIndex].innerText.toLowerCase();
-    if (cellA < cellB) return ascending ? -1 : 1;
-    if (cellA > cellB) return ascending ? 1 : -1;
+    if(cellA<cellB) return ascending?-1:1;
+    if(cellA>cellB) return ascending?1:-1;
     return 0;
   });
-
-  rows.forEach(row => tbody.appendChild(row));
+  rows.forEach(row=>tbody.appendChild(row));
 }
 
+// Load classes on page load
 fetchClasses();
 </script>
 <script src="auth-check.js"></script>
