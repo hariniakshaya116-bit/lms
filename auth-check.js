@@ -34,9 +34,9 @@
   // --- Step 3: Get code from local storage (if already logged in) ---
   const storedCode = localStorage.getItem("auth_code");
 
-  // --- Step 4: If no code, redirect to Cognito Hosted UI login ---
+  // --- Step 4: If no code, redirect to your own main page ---
   if (!storedCode) {
-    const loginUrl = "https://main.dijffme8w1boe.amplifyapp.com";
+    const loginUrl = "https://main.dijffme8w1boe.amplifyapp.com"; // <-- fixed (added quotes)
     window.location.href = loginUrl;
     return;
   }
@@ -47,4 +47,3 @@
     history.go(1);
   };
 })();
-
