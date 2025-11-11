@@ -36,7 +36,7 @@
 
   // --- Step 4: If no code, redirect to Cognito Hosted UI login ---
   if (!storedCode) {
-    const loginUrl = https://main.dijffme8w1boe.amplifyapp.com;
+    const loginUrl = "https://main.dijffme8w1boe.amplifyapp.com";
     window.location.href = loginUrl;
     return;
   }
@@ -47,3 +47,4 @@
     history.go(1);
   };
 })();
+
