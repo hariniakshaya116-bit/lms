@@ -37,10 +37,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       const courseDescription = course.description || "No description available";
       const courseId = course.course_id || course.id;
 
+      // ✅ Opens in new tab
       card.innerHTML = `
         <h2>${courseTitle}</h2>
         <p>${courseDescription}</p>
-        <a href="course-content-new.html?courseId=${encodeURIComponent(courseId)}" class="button">Start</a>
+        <a href="course-content-new.html?courseId=${encodeURIComponent(courseId)}"
+           class="button" target="_blank" rel="noopener noreferrer">Start</a>
       `;
 
       dynamicCoursesSection.appendChild(card);
